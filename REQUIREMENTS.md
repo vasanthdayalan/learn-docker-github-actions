@@ -49,6 +49,36 @@ docker run -m 512m --cpus 1 ...
 - Change `pom.xml`, rebuild, and confirm the dependency step runs again.
 - Be able to explain why the Dockerfile copies `pom.xml` before the source code.
 
+### 6. GitHub Actions
+
+1. **Push to GitHub.** Create a repo (public is fine for the lab), keep the `.gitignore`, and push the app plus `.github/workflows/ci.yml`.
+
+2. **Read the workflow before running it.** It has two jobs:
+   - `build-test` runs `mvn verify` on every push and pull request.
+   - `docker` runs only after tests pass, on pushes. It builds the image and pushes it to GitHub Container Registry (GHCR), tagged with the commit SHA.
+
+   It uses the built-in `GITHUB_TOKEN`, so no password is stored. The `packages: write` permission allows the push. GHCR requires lowercase image names, so the workflow has a step that lowercases the name. Check the current major version of each action in its README, since they may have changed.
+
+3. **Break it on purpose.** Make a test fail and confirm the `docker` job does not run. Fix the test and confirm the pipeline passes. This demonstrates the "gate" idea.
+
+4. **Simulate deploy.** Pull the image GitHub built and run it locally:
+
+   ```sh
+   docker pull ghcr.io/<your-user>/<repo>:<sha>
+   docker run -d -p 8080:8080 ghcr.io/<your-user>/<repo>:<sha>
+   ```
+
+   Packages are private by default. Log in to GHCR or make the package public. On Friday, the same image can be used in the local kind cluster.
+
+Be able to explain:
+- The difference between CI and CD
+- What triggers a workflow
+- Jobs vs. steps
+- Secrets and permissions
+- Why tests gate the image build
+- Tagging by commit SHA, so you can trace and roll back
+- How to extend the workflow to deploy, using `kubectl set image` or GitOps with Argo CD
+
 ## Concepts to Be Able to Explain
 
 - Image vs. container
