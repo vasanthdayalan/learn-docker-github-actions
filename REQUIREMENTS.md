@@ -59,7 +59,7 @@ docker run -m 512m --cpus 1 ...
 
    It uses the built-in `GITHUB_TOKEN`, so no password is stored. The `packages: write` permission allows the push. GHCR requires lowercase image names, so the workflow has a step that lowercases the name. Check the current major version of each action in its README, since they may have changed.
 
-3. **Break it on purpose.** Make a test fail and confirm the `docker` job does not run. Fix the test and confirm the pipeline passes. This demonstrates the "gate" idea.
+3. **Break it on purpose.** The project has a Spring Boot test in `src/test/java/com/example/demo/DemoApplicationTests.java` (with `spring-boot-starter-test` in `pom.xml`). Add a failing assertion, push, and confirm `build-test` fails and the `docker` job is skipped. Remove the assertion, push, and confirm both jobs pass. This demonstrates the "gate" idea.
 
 4. **Simulate deploy.** Pull the image GitHub built and run it locally:
 
@@ -68,7 +68,7 @@ docker run -m 512m --cpus 1 ...
    docker run -d -p 8080:8080 ghcr.io/<your-user>/<repo>:<sha>
    ```
 
-   Packages are private by default. Log in to GHCR or make the package public. On Friday, the same image can be used in the local kind cluster.
+   The repo and the GHCR package are public, so no login is needed. If you make the package private, log in to GHCR first with a token that has `read:packages`.
 
 Be able to explain:
 - The difference between CI and CD
